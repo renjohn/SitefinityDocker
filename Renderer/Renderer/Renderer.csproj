@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
+    <UserSecretsId>71addacc-8b8e-4044-bb35-151d36b77a6c</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
+    <PackageReference Include="Progress.Sitefinity.AspNetCore" Version="14.1.7823.27" />
+    <PackageReference Include="Progress.Sitefinity.AspNetCore.FormWidgets" Version="14.1.7823.27" />
+    <PackageReference Include="Progress.Sitefinity.AspNetCore.Widgets" Version="14.1.7823.27" />
+    <PackageReference Include="Progress.Sitefinity.Renderer" Version="14.1.7823.27" />
+    <PackageReference Include="Progress.Sitefinity.RestSdk" Version="14.1.7823.27" />
+  </ItemGroup>
+
+</Project>

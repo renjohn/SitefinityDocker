@@ -1,0 +1,19 @@
+version: '2.5'
+
+services:
+  sitefinitysql:
+    hostname: sitefinitysql
+    container_name: sitefinitysql
+    environment:
+      - SA_PASSWORD=Sitefinity14@2022
+      - ACCEPT_EULA=Y      
+      - MSSQL_PID=Express
+    ports:
+      - "5433:1433"
+    volumes:
+        - ./../sql_data:/var/opt/mssql
+  sitefinitywebapp:
+    ports:
+      - "8085:80"
+    volumes:
+      - ./../app_data:C:/inetpub/wwwroot/App_Data 
