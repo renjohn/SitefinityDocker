@@ -19,7 +19,7 @@ services:
       - "8085:80"
     volumes:
       - ./../data/app_data:C:/inetpub/wwwroot/App_Data 
-  renderer:
+  sitefinityrenderer:
     hostname: sitefinityrenderer.local
     container_name: sitefinityrenderer
     environment:
@@ -30,6 +30,6 @@ services:
       - "5000"
       - "5001"
     volumes:
-      - ${APPDATA}\microsoft\UserSecrets\:C:\Users\ContainerUser\AppData\Roaming\microsoft\UserSecrets
+      #- ${APPDATA}\microsoft\UserSecrets\:C:\Users\ContainerUser\AppData\Roaming\microsoft\UserSecrets
       - ${USERPROFILE}\.aspnet\https:C:\Users\ContainerUser\AppData\Roaming\ASP.NET\Https
       

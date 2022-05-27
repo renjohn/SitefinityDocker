@@ -7,6 +7,7 @@ services:
     environment:
     - SA_PASSWORD=Sitefinity14@2022
     - ACCEPT_EULA=Y
+    restart: always
     ports:
     - "5400:1433" 
     mem_limit: 2g
@@ -21,7 +22,7 @@ services:
     depends_on:
       - sitefinitysql
 
-  renderer:
+  sitefinityrenderer:
     image: ${DOCKER_REGISTRY-}renderer:14.1.7823.27
     container_name: sitefinityrenderer
     build:

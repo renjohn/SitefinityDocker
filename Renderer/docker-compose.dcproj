@@ -6,6 +6,7 @@
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}</DockerServiceUrl>
     <DockerServiceName>renderer</DockerServiceName>
+  	<DockerComposeProjectName>SITEFINITY14</DockerComposeProjectName>
   </PropertyGroup>
   <PropertyGroup>
     <DockerTargetOS>Windows</DockerTargetOS>
