@@ -21,13 +21,17 @@ Hardware Requirements:
 
 Software Requirements:
 * Docker Desktop 4.x - Running on experimental mode to allow both Linux and Windows VMs to run side by side.  The Windows VM is required for the Sitefinity CMS backend.  
+  * Switch to Windows containers in Docker for Windows tray
+  * Go to Docker Engine settings section and set experimental parameter to ‘true’
+  * I also add a json setting for DNS to allow internet access to windows containers - "dns": [ "8.8.8.8"]
 * Visual Studio 2019+
+  *Should be run in administrator mode to avoid issues
 * Sitefinity License
 * This was designed for use on a Windows machine but can easily be ported to MAC/Linux
 
 ## Directory Structure
 
-* data
+* data - This is a persistent data directory for the solution at the root of the git repo that contain the following sub directories
   * app_data - This directory maps to the Sitefinity Backend app_data directory where your license files,  configuration files, and log files are persistently stored
   * https - This data is for storage of generated ssl certificate
   * sql_data - This is directory is mounted to the container to store the sql database.  Your Sitefinity databases will be persisted here
@@ -39,8 +43,9 @@ Software Requirements:
 The renderer project is setup to only build the renderer container each time and rely on prebuilt backend containers for effeciency.  This project assumes that most of the work and customizations are contained in the front end Renderer project.  This requires that you build out the backend containers first.  The only time you will need to rebuild the backend contianers is for module installation, upgrades, and customizations to the backend cms.  If you are still developing modules and customizations for the backend, it is recommended you use option 2 below for faster development times.
 
 ### Option 1:
-This option will pull the .NET SDK docker image to build the Sitefinity backend, and publish it to .NET Runtime docker image.  This is the "docker" way of doing things, but requires a lot more hard drive space and time to execute.  If you are doing a lot of development on the Sitefinity CMS backend or have limited drive space, please use Option 2.
-1. Run `init.ps` in the root directory of the project.  This will build out the backend and frontend containers
+This option will pull the .NET SDK docker image to build the Sitefinity backend, and publish it to .NET Runtime docker image.  This is the "docker" way of doing things, but requires a lot more hard drive space and time (15m vs 1.5h) to execute.  If you are doing a lot of development on the Sitefinity CMS backend or have limited drive space, please use Option 2.
+1. Run `init.ps1` in the root directory of the project.  This will build out the backend and frontend containers
+  * Watch for any errors and you will need to troubleshoot them before continuing on
 2. Open the Renderer solution in Visual studio 
 3. Switch the build context to Docker Compose
 4. Debug the project using Docker Compose
@@ -66,11 +71,11 @@ Memory Settings are set in the Renderer docker-compose.yml file as mem_limit 2GB
 The containers are running on http vs https.  To enable https for the front end server you will need to go through a few steps.
 1. Set useSSL to true in Renderer/Properties/launch.json
 2. Uncomment line 33 in the Renderer/docker-compose.override.yml file
-3.  Generate a certificate  with the following commands from the Renderer directory in Powershell.  Feel free to change the password "sitefinity14" in the commands.
-    dotnet dev-certs https --clean
-    dotnet dev-certs https -ep ..\data\https\renderer.pfx -p sitefinity14
-    dotnet dev-certs https --trust
-    dotnet user-secrets -p Renderer\Renderer.csproj set "Kestrel:Certificates:Development:Password" "sitefinity14"
+3. Visual Studio will autogenerate a certificate if you run the solution from there, otherwise you will need to generate a certificate with the following commands from the Renderer directory in Powershell.  Feel free to change the password "sitefinity14" in the commands.
+>dotnet dev-certs https --clean
+>dotnet dev-certs https -ep ..\data\https\renderer.pfx -p sitefinity14
+>dotnet dev-certs https --trust
+>dotnet user-secrets -p Renderer\Renderer.csproj set "Kestrel:Certificates:Development:Password" "sitefinity14"
 
 This works, but required me to regenerate the SSL everytime the contianer was rebuilt even though the certificate was persisted.  It also required me to add/remove my volume mounts in my docker override as they tended to get sticky.  As this is for local development purposes, I turned of SSL to get rid of these annoyances. 
 
