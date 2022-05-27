@@ -73,8 +73,11 @@ The containers are running on http vs https.  To enable https for the front end 
 2. Uncomment line 33 in the Renderer/docker-compose.override.yml file
 3. Visual Studio will autogenerate a certificate if you run the solution from there, otherwise you will need to generate a certificate with the following commands from the Renderer directory in Powershell.  Feel free to change the password "sitefinity14" in the commands.
 >dotnet dev-certs https --clean
+
 >dotnet dev-certs https -ep ..\data\https\renderer.pfx -p sitefinity14
+
 >dotnet dev-certs https --trust
+
 >dotnet user-secrets -p Renderer\Renderer.csproj set "Kestrel:Certificates:Development:Password" "sitefinity14"
 
 This works, but required me to regenerate the SSL everytime the contianer was rebuilt even though the certificate was persisted.  It also required me to add/remove my volume mounts in my docker override as they tended to get sticky.  As this is for local development purposes, I turned of SSL to get rid of these annoyances. 
