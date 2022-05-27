@@ -31,5 +31,5 @@ services:
       - "5001"
     volumes:
       #- ${APPDATA}\microsoft\UserSecrets\:C:\Users\ContainerUser\AppData\Roaming\microsoft\UserSecrets
-      - ${USERPROFILE}\.aspnet\https:C:\Users\ContainerUser\AppData\Roaming\ASP.NET\Https
+      - ./../data/https:C:\Users\ContainerUser\AppData\Roaming\ASP.NET\Https
       

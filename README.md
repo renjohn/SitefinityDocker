@@ -29,6 +29,7 @@ Software Requirements:
 
 * data
   * app_data - This directory maps to the Sitefinity Backend app_data directory where your license files,  configuration files, and log files are persistently stored
+  * https - This data is for storage of generated ssl certificate
   * sql_data - This is directory is mounted to the container to store the sql database.  Your Sitefinity databases will be persisted here
 * Renderer - Location of the Sitefinty Frontend solution.  This is where you will run the main docker topology from
 * SitefinityWebApp - Location of the Sitefinity Backend solution.  This is where you can make any customizations for the backend of the product
@@ -65,8 +66,9 @@ Memory Settings are set in the Renderer docker-compose.yml file as mem_limit 2GB
 The containers are running on http vs https.  To enable https for the front end server you will need to go through a few steps.
 1. Set useSSL to true in Renderer/Properties/launch.json
 2. Uncomment line 33 in the Renderer/docker-compose.override.yml file
-3.  Generate a certificate  with the following commands in Powershell.  Feel free to change the password "sitefinity14" in the commands.
-    dotnet dev-certs https -ep $env:USERPROFILE\.aspnet\https\renderer.pfx -p sitefinity14
+3.  Generate a certificate  with the following commands from the Renderer directory in Powershell.  Feel free to change the password "sitefinity14" in the commands.
+    dotnet dev-certs https --clean
+    dotnet dev-certs https -ep ..\data\https\renderer.pfx -p sitefinity14
     dotnet dev-certs https --trust
     dotnet user-secrets -p Renderer\Renderer.csproj set "Kestrel:Certificates:Development:Password" "sitefinity14"
 
