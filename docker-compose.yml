@@ -1,0 +1,206 @@
+version: '2.5'
+
+services:
+ 
+  sitefinitysql:
+    image: mcr.microsoft.com/mssql/server:2019-CU15-ubuntu-20.04
+    container_name: sitefinitysql
+    environment:
+    - SA_PASSWORD=Sitefinity14@2022
+    - ACCEPT_EULA=Y
+    restart: always
+    ports:
+    - "5433:1433" 
+    mem_limit: 2g
+
+  sitefinitywebapp:
+    image: sitefinitywebapp:14.2.7900
+    container_name: sitefinitywebapp
+    dns: 8.8.8.8
+    ports:
+    - "8085:80" 
+    - "8086:443"
+    mem_limit: 8g
+    depends_on:
+      - sitefinitysql
+
+  sitefinityrenderer:
+    image: sitefinityrenderer:14.2.7900.145
+    container_name: sitefinityrenderer
+    build:
+      context: .
+      dockerfile: src/Sitefinity.Renderer/Dockerfile
+    ports:
+    - "5000:5000" 
+    - "5001:5001" 
+    depends_on:
+      - sitefinitysql
+      - sitefinitywebapp
+
+  elasticsetup:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    container_name: elasticsetup
+    user: "0"
+    working_dir: /usr/share/elasticsearch
+    command: >
+      bash -c '
+        if [ x${ELASTIC_PASSWORD} == x ]; then
+          echo "Set the ELASTIC_PASSWORD environment variable in the .env file";
+          exit 1;
+        elif [ x${KIBANA_PASSWORD} == x ]; then
+          echo "Set the KIBANA_PASSWORD environment variable in the .env file";
+          exit 1;
+        fi;
+        if [ ! -f config/certs/ca.zip ]; then
+          echo "Creating CA";
+          bin/elasticsearch-certutil ca --silent --pem --out config/certs/ca.zip;
+          unzip config/certs/ca.zip -d config/certs;
+          unzip config/certs/ca.zip -d /kibanacerts;
+          unzip config/certs/ca.zip -d /enterprisecerts;
+          echo "Done creating CA"
+        fi;
+        if [[ ! -f config/certs/bundle.zip ]]; then
+          echo "Creating certificates for each instance"
+          echo -ne \
+          "instances:\n"\
+          "  - name: es01\n"\
+          "    dns:\n"\
+          "      - es01\n"\
+          "      - elastic..local\n"\
+          "      - localhost\n"\
+          "    ip:\n"\
+          "      - 127.0.0.1\n"\
+          "  - name: kibana\n"\
+          "    dns:\n"\
+          "      - kibana\n"\
+          "      - kibana..local\n"\
+          "      - localhost\n"\
+          "    ip:\n"\
+          "      - 127.0.0.1\n"\
+          "  - name: enterprisesearch\n"\
+          "    dns:\n"\
+          "      - enterprisesearch\n"\
+          "      - search..local\n"\
+          "      - localhost\n"\
+          "    ip:\n"\
+          "      - 127.0.0.1\n"\
+          > config/certs/instances.yml;
+          /usr/share/elasticsearch/bin/elasticsearch-certutil cert --silent --pem --in config/certs/instances.yml --out config/certs/bundle.zip --ca-cert config/certs/ca/ca.crt --ca-key config/certs/ca/ca.key;
+          unzip config/certs/bundle.zip -d config/certs;
+          unzip config/certs/bundle.zip -d /kibanacerts;
+          unzip config/certs/bundle.zip -d /enterprisecerts;
+          echo "Certificates created for each instance"
+        fi;
+        echo "Setting file permissions"
+        chown -R root:root config/certs;
+        find . -type d -exec chmod 750 \{\} \;;
+        find . -type f -exec chmod 640 \{\} \;;
+        echo "Permissions set"
+        echo "Waiting for Elasticsearch availability";
+        until curl -s --cacert config/certs/ca/ca.crt https://es01:9200 | grep -q "missing authentication credentials"; do sleep 30; done;
+        echo "Setting kibana_system password";
+        until curl -s -X POST --cacert config/certs/ca/ca.crt -u elastic:${ELASTIC_PASSWORD} -H "Content-Type: application/json" https://es01:9200/_security/user/kibana_system/_password -d "{\"password\":\"${KIBANA_PASSWORD}\"}" | grep -q "^{}"; do sleep 10; done;
+        
+        echo "All done!";
+      '
+    healthcheck:
+      test: ["CMD-SHELL", "[ -f config/certs/es01/es01.crt ]"]
+      interval: 1s
+      timeout: 5s
+      retries: 120
+  
+
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    container_name: es01
+    environment:
+      - node.name=es01
+      - cluster.name=${CLUSTER_NAME}
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.license.self_generated.type=${LICENSE}
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=true
+      - xpack.security.http.ssl.key=${ELASTIC_CERTS_DIR}/es01/es01.key
+      - xpack.security.http.ssl.certificate=${ELASTIC_CERTS_DIR}/es01/es01.crt
+      - xpack.security.http.ssl.certificate_authorities=${ELASTIC_CERTS_DIR}/ca/ca.crt
+      - xpack.security.http.ssl.verification_mode=certificate
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.key=${ELASTIC_CERTS_DIR}/es01/es01.key
+      - xpack.security.transport.ssl.certificate=${ELASTIC_CERTS_DIR}/es01/es01.crt
+      - xpack.security.transport.ssl.certificate_authorities=${ELASTIC_CERTS_DIR}/ca/ca.crt
+      - xpack.security.transport.ssl.verification_mode=certificate
+      
+    mem_limit: ${MEM_LIMIT}
+    ports:
+      - ${ES_PORT}:9200
+    healthcheck:
+      test:
+        [
+            "CMD-SHELL",
+            "curl -s --cacert config/certs/ca/ca.crt https://es01:9200 | grep -q 'missing authentication credentials'",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+    depends_on:
+      elasticsetup:
+        condition: service_healthy
+   
+   
+  kibana:
+    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
+    container_name: kibana
+    mem_limit: ${MEM_LIMIT}
+    ports:
+      - ${KIBANA_PORT}:5601
+    entrypoint: ["./bin/kibana", "--allow-root"] 
+    healthcheck:
+      test:
+        [
+            "CMD-SHELL",
+            "curl -s -I --cacert config/certs/ca/ca.crt https://kibana:5601 | grep -q 'HTTP/1.1 302 Found'",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+    depends_on:
+      es01:
+        condition: service_healthy
+    
+  enterprisesearch:
+    container_name: enterprisesearch
+    depends_on:
+      es01:
+        condition: service_healthy
+      kibana:
+        condition: service_healthy
+    image: docker.elastic.co/enterprise-search/enterprise-search:${STACK_VERSION}
+    ports:
+      - ${ENTERPRISE_SEARCH_PORT}:3002
+    environment:
+      - "JAVA_OPTS=-Xms512m -Xmx512m"
+      - "ENT_SEARCH_DEFAULT_PASSWORD=${ELASTIC_PASSWORD}"
+      - SERVERNAME=enterprisesearch
+      - secret_management.encryption_keys=[${ENCRYPTION_KEYS}]
+      - allow_es_settings_modification=true
+      - elasticsearch.host=https://es01:9200
+      - elasticsearch.username=elastic
+      - elasticsearch.password=${ELASTIC_PASSWORD}
+      - elasticsearch.ssl.enabled=true
+      - elasticsearch.ssl.certificate_authority=/usr/share/enterprise-search/config/certs/ca/ca.crt
+      - elasticsearch.ssl.certificate=/usr/share/enterprise-search/config/certs/es01/es01.crt
+      - elasticsearch.ssl.key=/usr/share/enterprise-search/config/certs/es01/es01.key
+      - kibana.host=https://kibana:5601
+    mem_limit: ${MEM_LIMIT}
+    healthcheck:
+      test:
+        [
+            "CMD-SHELL",
+            "curl -s -I http://localhost:3002 | grep -q 'HTTP/1.1 302 Found'",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+  

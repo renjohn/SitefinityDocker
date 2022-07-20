@@ -35,6 +35,8 @@ x64/
 *.log
 *.vspscc
 *.vssscc
+*.v2
+*.vsidx
 .builds
 
 # Visual C++ cache files
@@ -138,6 +140,8 @@ Tests/Telerik.Sitefinity.Frontend.ClientTest/templates.js
 
 Tests/Telerik.Sitefinity.Frontend.ClientTest/obj/Debug/DesignTimeResolveAssemblyReferencesInput.cache
 Feather.sln.GhostDoc.xml
-/.vs/config/applicationhost.config
+.vs/*
 *.aiis
 
+*dtbcache.v2
+.env

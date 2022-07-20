@@ -1,0 +1,36 @@
+{
+  "profiles": {
+    "Sitefinity": {
+      "commandName": "DockerCompose",
+      "composeLaunchAction": "LaunchBrowser",
+      "composeLaunchServiceName": "sitefinityrenderer",
+      "composeLaunchUrl": "{Scheme}://{ServiceIPAddress}{ServicePort}",
+      "commandVersion": "1.0",
+      "serviceActions": {
+        "elasticsetup": "DoNotStart",
+        "enterprisesearch": "DoNotStart",
+        "es01": "DoNotStart",
+        "kibana": "DoNotStart",
+        "sitefinityrenderer": "StartDebugging",
+        "sitefinitysql": "StartWithoutDebugging",
+        "sitefinitywebapp": "StartWithoutDebugging"
+      }
+    },
+    "Sitefinity with ElasticSearch": {
+      "commandName": "DockerCompose",
+      "composeLaunchAction": "LaunchBrowser",
+      "composeLaunchServiceName": "sitefinityrenderer",
+      "composeLaunchUrl": "{Scheme}://{ServiceIPAddress}{ServicePort}",
+      "commandVersion": "1.0",
+      "serviceActions": {
+        "elasticsetup": "StartWithoutDebugging",
+        "enterprisesearch": "StartWithoutDebugging",
+        "es01": "StartWithoutDebugging",
+        "kibana": "StartWithoutDebugging",
+        "sitefinityrenderer": "StartDebugging",
+        "sitefinitysql": "StartWithoutDebugging",
+        "sitefinitywebapp": "StartWithoutDebugging"
+      }
+    }
+  }
+}
