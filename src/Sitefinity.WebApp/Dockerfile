@@ -31,7 +31,7 @@ RUN powershell -Command Add-WindowsFeature NET-WCF-HTTP-Activation45
 
 #Setup Additional IIS Features if necessary uncomment next 2 lines 
 #https://github.com/Sitefinity/docportal-resources/tree/master/Power%20Shell%20scripts
-#ADD ./SitefinityWebApp/IIS10.ps1 /build/IIS10.ps1
+#ADD ./Sitefinity.WebApp/IIS10.ps1 /build/IIS10.ps1
 #RUN powershell -File ‘/build/IIS10.ps1’ 
 
 #Install URL Rewrite
