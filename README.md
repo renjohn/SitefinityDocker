@@ -41,7 +41,6 @@ Software Requirements:
   * enterprisesearch - This folder persists the configs and index of enterprisesearch Enterprise Search container
   * kibana - This folder persists the configs and index of kibana Kibana container
   * sql_data - This is directory is mounted to the container to store the sql database.  Your Sitefinity databases will be persisted here
-* devops - This folder contains all the docker compose files for building the containers to host the application
 * src - This folder contains all the projects used to develop and run the application
   * Sitefinity.Core - The core project that will contain the core application logic
   * Sitefinity.Infrastructure - The infrastructure project will contain dependecies to external systems
@@ -111,7 +110,7 @@ Memory Settings are set in the Renderer docker-compose.yml or .env file as mem_l
 
 Ensure you are running Docker Desktop in Windows Container mode
 Ensure you have experimental set to true in the Docker Desktop Settings
-If you get container failed to start or stop - run 'docker compose down' in the Renderer directory.  You may need to do it more than once.
+If you get container failed to start or stop - run 'docker compose down' in the solution directory.  You may need to do it more than once.
 If you get errors regarding symlinks and can't start Docker Desktop, you may need to clear out your docker data directory using https://github.com/moby/docker-ci-zap
 
 Error that you may run into when running `.\buildsitefinitybackend.ps1`
