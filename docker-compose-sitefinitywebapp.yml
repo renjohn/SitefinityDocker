@@ -17,7 +17,7 @@ services:
     container_name: sitefinitywebapp
     build:
         context: ./src
-        dockerfile: Sitefinity.WebApp/Dockerfile
+        dockerfile: /Sitefinity.WebApp/Dockerfile
         args:
           - hostname=cms.sitefinity.org
     dns: 8.8.8.8

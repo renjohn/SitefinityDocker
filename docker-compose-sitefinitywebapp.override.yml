@@ -13,7 +13,7 @@ services:
     volumes:
         - ./data/sql_data/data:/var/opt/mssql/data
         - ./data/sql_data/backup:/var/opt/mssql/backup
-  aapmsitefinitywebapp:
+  sitefinitywebapp:
     ports:
       - "8085:80"
     volumes:
