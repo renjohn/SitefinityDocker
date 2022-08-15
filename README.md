@@ -40,7 +40,9 @@ Software Requirements:
   * elasticsearch - This folder persists the configs and index of es01 Elastic Search container
   * enterprisesearch - This folder persists the configs and index of enterprisesearch Enterprise Search container
   * kibana - This folder persists the configs and index of kibana Kibana container
-  * sql_data - This is directory is mounted to the container to store the sql database.  Your Sitefinity databases will be persisted here
+  * sql_data - This is directory is mounted to the container to store the sql database and backups
+    * backup - A directory to put backup files to be restored to your instance
+    * data - Your Sitefinity databases will be persisted here
 * src - This folder contains all the projects used to develop and run the application
   * Sitefinity.Core - The core project that will contain the core application logic
   * Sitefinity.Infrastructure - The infrastructure project will contain dependecies to external systems
@@ -61,18 +63,12 @@ The Renderer project is setup to only build the sitefinityrenderer container eac
 These direction are for developing within Visual Studio and debugging using Docker compose from within Visual Studio.  
 1. Create .env file based off of the .env.example file in the root of the solution
 2. Update the CHANGEME references in the file to whatever you want
-3. Update the value of ENCRYPTION_KEYS to a 32 character string 
-4. Create data/kibana/kibana.yml file from the data/kibana/kibana.yml.example file
-5. Replace the <COPY_KIBANA_PASSWORD_from_ENV_FILE> text in the data/kibana/kibana.xml file with the the KIBANA_PASSWORD you updated in the .env file
-4. Replace all the "<COPY_ENCRYPTION_KEYS_from_ENV_FILE>" text in the data/kibana/kibana.xml with the value of ENCRYPTION_KEYS in the .env file 
-6. Run `.\buildsitefinitybackend.ps1` from the command line in the root directory of the solution.  This will build out the backend SitefinityWebApp container
+3. Run `.\buildsitefinitybackend.ps1` from the command line in the root directory of the solution.  This will build out the backend SitefinityWebApp container
     * Watch for any errors and you will need to troubleshoot them before continuing on
-7. Open the Sitefinity.sln solution in Visual studio 
-8. Switch the build configuration to docker compose
-9. Debug the project using Docker Compose
-    * Use Sitefinity launch setting to run the website without Elastic Search (3 less containers running)
-    * Use Sitefinity with Elastic Search to run the website with the Elastic Search containers
-10. Navigate to https://localhost:5001 to browse the site
+4. Open the Sitefinity.sln solution in Visual studio 
+5. Switch the build configuration to docker compose
+6. Debug the project using the Sitefinity debug option    
+7. Navigate to https://localhost:5001 to browse the site
 
 ### Sitefinity Initialization
 
@@ -83,13 +79,13 @@ The first time you spin up your container you will need to enter values for your
     * MS SQL Server
     * Server:  sitefinitysql
     * Port: 1433
-    * Password:  See .env file in root of solution
+    * Password:  See docker-compose-override.yml file in root of solution
     * Database Name: sitefinity
 3. Register yourself as the administrator
 
 ### Local Elastic Search Development
 
-Docker containers for Elastic Search, Kibana, and Enterprise Search are configure in the docker compose file.  They are disabled in the launch settings for Docker Compose within Visual Studio.  To run the full solution with the containers for elastic search you will need to change the Launch Settings to Docker Compose with Elasticsearch within Visual Studio.  This will setup the certificates and launch all 3 containers for Elastic Search to work locally.  You will also need to switch the search index within the Sitefinity Backend to use Elastic Search.  
+The Docker container for Elastic Search is configured in the docker compose file.  The elasticsetup container will setup the certificates for elastic search.  You will lso need to switch the search index within the Sitefinity Backend to use Elastic Search with the following settings:
   * Elastic Server: es01:9200
   * Elastic User: elastic
   * Elastic Password: See .env file in root of Solution
@@ -97,21 +93,21 @@ Docker containers for Elastic Search, Kibana, and Enterprise Search are configur
 ## Upgrade Procedures
 
 1. Upgrade the Sitefinity Web App solution using the Sitefinity CLI
-    * ex:   sf upgrade "SitefinityWebApp\SitefinityWebApp.sln" "14.2.7900" --acceptLicense
+    * ex:   sf upgrade "c:\SitefinityDocker\src\SitefinityWebApp\SitefinityWebApp.sln" "14.2.7900" --acceptLicense
 2. Use the nuget package manager to update the Renderer solution to match
 3. Update the version numbers in the docker compose files in both the SitefinityWebApp and Renderer folders
 4. Re-run `.\buildsitefinitybackend.ps1` from the root directory to rebuild the SitefinityWebApp container
 
 ## Custom Settings
 
-Memory Settings are set in the Renderer docker-compose.yml or .env file as mem_limit 2GB for MySql, 8GB for the SitefinityWebApp backend.  You can increase/decrease the numbers based on your hardware situation.  You need at least 1GB for MySql and 4GB for the backend.  You can also set a limit the same way for the Renderer.
+Memory Settings are set in the Renderer docker-compose.yml or .env file as mem_limit 2GB for the Linux containers.  You can increase/decrease the numbers based on your hardware situation.  You need at least 1GB for MySql and 4GB for the backend.  
 
 ## Trouble Shooting
 
-Ensure you are running Docker Desktop in Windows Container mode
-Ensure you have experimental set to true in the Docker Desktop Settings
-If you get container failed to start or stop - run 'docker compose down' in the solution directory.  You may need to do it more than once.
-If you get errors regarding symlinks and can't start Docker Desktop, you may need to clear out your docker data directory using https://github.com/moby/docker-ci-zap
+- Ensure you are running Docker Desktop in Windows Container mode
+- Ensure you have experimental set to true in the Docker Desktop Settings
+- If you get container failed to start or stop - run 'docker compose down' in the solution directory.  You may need to do it more than once.
+- If you get errors regarding symlinks and can't start Docker Desktop, you may need to clear out your docker data directory using https://github.com/moby/docker-ci-zap
 
 Error that you may run into when running `.\buildsitefinitybackend.ps1`
 Status: hcsshim::PrepareLayer - failed failed in Win32: Incorrect function. (0x1), Code: 1

@@ -32,8 +32,6 @@ services:
   elasticsetup:
    volumes:
       - ./data/certs:/usr/share/elasticsearch/config/certs
-      - ./data/kibana/config/certs:/kibanacerts
-      - ./data/enterprisesearch/certs:/enterprisecerts
       
   es01:
     hostname:  elastic.sitefinity.local
@@ -42,19 +40,8 @@ services:
     volumes:
       - ./data/elasticsearch:/usr/share/elasticsearch/data
       - ./data/certs:/usr/share/elasticsearch/config/certs
-      
   
-  kibana:
-    hostname: kibana.sitefinity.local
-    volumes:
-      - ./data/kibana/data:/usr/share/kibana/data
-      - ./data/kibana/config:/usr/share/kibana/config
-  
-  enterprisesearch:
-    hostname: search.sitefinity.local
-    volumes:
-      - ./data/enterprisesearch:/usr/share/enterprise-search/config
-      
+ 
  
    
       

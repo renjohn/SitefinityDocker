@@ -1,2 +1,0 @@
-export JAVA_OPTS=${JAVA_OPTS:-"-Xms512m -Xmx512m"}
-export APP_SERVER_JAVA_OPTS="${APP_SERVER_JAVA_OPTS:-}"
