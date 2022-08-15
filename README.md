@@ -66,9 +66,11 @@ These direction are for developing within Visual Studio and debugging using Dock
 3. Run `.\buildsitefinitybackend.ps1` from the command line in the root directory of the solution.  This will build out the backend SitefinityWebApp container
     * Watch for any errors and you will need to troubleshoot them before continuing on
 4. Open the Sitefinity.sln solution in Visual studio 
-5. Switch the build configuration to docker compose
-6. Debug the project using the Sitefinity debug option    
-7. Navigate to https://localhost:5001 to browse the site
+5. Ensure the docker-compose project is set as the startup project
+6. Build the solution
+7. Switch the build configuration to docker compose
+8. Debug the project using the Sitefinity debug option    
+9. Navigate to https://localhost:5001 to browse the site
 
 ### Sitefinity Initialization
 
