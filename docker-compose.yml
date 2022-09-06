@@ -4,7 +4,7 @@ services:
  
   sitefinitysql:
     image: mcr.microsoft.com/mssql/server:2019-CU15-ubuntu-20.04
-    container_name: sitefinitysql
+    container_name: ${PROJECT_NAME}sitefinitysql
     environment:
     - SA_PASSWORD=Sitefinity14@2022
     - ACCEPT_EULA=Y
@@ -14,8 +14,8 @@ services:
     mem_limit: 2g
 
   sitefinitywebapp:
-    image: sitefinitywebapp:14.2.7900
-    container_name: sitefinitywebapp
+    image: ${PROJECT_NAME}sitefinitywebapp:14.2.7900
+    container_name: ${PROJECT_NAME}sitefinitywebapp
     dns: 8.8.8.8
     ports:
     - "8085:80" 
@@ -24,8 +24,8 @@ services:
       - sitefinitysql
 
   sitefinityrenderer:
-    image: sitefinityrenderer:14.2.7900.145
-    container_name: sitefinityrenderer
+    image: ${PROJECT_NAME}sitefinityrenderer:14.2.7900.145
+    container_name: ${PROJECT_NAME}sitefinityrenderer
     build:
       context: .
       dockerfile: src/Sitefinity.Renderer/Dockerfile
@@ -38,7 +38,7 @@ services:
 
   elasticsetup:
     image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
-    container_name: elasticsetup
+    container_name: ${PROJECT_NAME}elasticsetup
     user: "0"
     working_dir: /usr/share/elasticsearch
     command: >
@@ -57,9 +57,9 @@ services:
           echo "Creating certificates"
           echo -ne \
           "instances:\n"\
-          "  - name: es01\n"\
+          "  - name: ${PROJECT_NAME}es01\n"\
           "    dns:\n"\
-          "      - es01\n"\
+          "      - ${PROJECT_NAME}es01\n"\
           "      - elastic.sitefinity.local\n"\
           "      - localhost\n"\
           "    ip:\n"\
@@ -75,11 +75,11 @@ services:
         find . -type f -exec chmod 640 \{\} \;;
         echo "Permissions set"
         echo "Waiting for Elasticsearch availability";
-        until curl -s --cacert config/certs/ca/ca.crt https://es01:9200 | grep -q "missing authentication credentials"; do sleep 30; done;
+        until curl -s --cacert config/certs/ca/ca.crt https://${PROJECT_NAME}es01:9200 | grep -q "missing authentication credentials"; do sleep 30; done;
         echo "All done!";
       '
     healthcheck:
-      test: ["CMD-SHELL", "[ -f config/certs/es01/es01.crt ]"]
+      test: ["CMD-SHELL", "[ -f config/certs/${PROJECT_NAME}es01/${PROJECT_NAME}es01.crt ]"]
       interval: 1s
       timeout: 5s
       retries: 120
@@ -87,9 +87,9 @@ services:
 
   es01:
     image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
-    container_name: es01
+    container_name: ${PROJECT_NAME}es01
     environment:
-      - node.name=es01
+      - node.name=${PROJECT_NAME}es01
       - cluster.name=${CLUSTER_NAME}
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - bootstrap.memory_lock=true
@@ -97,13 +97,13 @@ services:
       - xpack.license.self_generated.type=${LICENSE}
       - xpack.security.enabled=true
       - xpack.security.http.ssl.enabled=true
-      - xpack.security.http.ssl.key=${ELASTIC_CERTS_DIR}/es01/es01.key
-      - xpack.security.http.ssl.certificate=${ELASTIC_CERTS_DIR}/es01/es01.crt
+      - xpack.security.http.ssl.key=${ELASTIC_CERTS_DIR}/${PROJECT_NAME}es01/${PROJECT_NAME}es01.key
+      - xpack.security.http.ssl.certificate=${ELASTIC_CERTS_DIR}/${PROJECT_NAME}es01/${PROJECT_NAME}es01.crt
       - xpack.security.http.ssl.certificate_authorities=${ELASTIC_CERTS_DIR}/ca/ca.crt
       - xpack.security.http.ssl.verification_mode=certificate
       - xpack.security.transport.ssl.enabled=true
-      - xpack.security.transport.ssl.key=${ELASTIC_CERTS_DIR}/es01/es01.key
-      - xpack.security.transport.ssl.certificate=${ELASTIC_CERTS_DIR}/es01/es01.crt
+      - xpack.security.transport.ssl.key=${ELASTIC_CERTS_DIR}/${PROJECT_NAME}es01/${PROJECT_NAME}es01.key
+      - xpack.security.transport.ssl.certificate=${ELASTIC_CERTS_DIR}/${PROJECT_NAME}es01/${PROJECT_NAME}es01.crt
       - xpack.security.transport.ssl.certificate_authorities=${ELASTIC_CERTS_DIR}/ca/ca.crt
       - xpack.security.transport.ssl.verification_mode=certificate
       
@@ -114,7 +114,7 @@ services:
       test:
         [
             "CMD-SHELL",
-            "curl -s --cacert config/certs/ca/ca.crt https://es01:9200 | grep -q 'missing authentication credentials'",
+            "curl -s --cacert config/certs/ca/ca.crt https://${PROJECT_NAME}es01:9200 | grep -q 'missing authentication credentials'",
         ]
       interval: 10s
       timeout: 10s

@@ -62,6 +62,7 @@ The Renderer project is setup to only build the sitefinityrenderer container eac
 
 These direction are for developing within Visual Studio and debugging using Docker compose from within Visual Studio.  
 1. Create .env file based off of the .env.example file in the root of the solution
+2. Update the project name to distinguish your contianers between projects.  Should be all lower case (i.e. quantum)
 2. Update the CHANGEME references in the file to whatever you want
 3. Run `.\buildsitefinitybackend.ps1` from the command line in the root directory of the solution.  This will build out the backend SitefinityWebApp container
     * Watch for any errors and you will need to troubleshoot them before continuing on

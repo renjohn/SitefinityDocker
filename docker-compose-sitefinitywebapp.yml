@@ -3,7 +3,7 @@ version: '3.9'
 services:
   sitefinitysql:
     image: mcr.microsoft.com/mssql/server:2019-CU15-ubuntu-20.04
-    container_name: sitefinitysql
+    container_name: ${PROJECT_NAME}sitefinitysql
     environment:
     - SA_PASSWORD=Sitefinity14@2022
     - ACCEPT_EULA=Y
@@ -13,13 +13,13 @@ services:
     
 
   sitefinitywebapp:
-    image: sitefinitywebapp:14.2.7900
-    container_name: sitefinitywebapp
+    image: ${PROJECT_NAME}sitefinitywebapp:14.2.7900
+    container_name: ${PROJECT_NAME}sitefinitywebapp
     build:
         context: ./src
         dockerfile: /Sitefinity.WebApp/Dockerfile
         args:
-          - hostname=cms.sitefinity.org
+          - hostname=cms.${PROJECT_NAME}.org
     dns: 8.8.8.8
     ports:
     - "8085:80" 

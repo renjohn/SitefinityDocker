@@ -2,8 +2,8 @@ version: '2.5'
 
 services:
   sitefinitysql:
-    hostname: sitefinitysql
-    container_name: sitefinitysql
+    hostname: ${PROJECT_NAME}sitefinitysql
+    container_name: ${PROJECT_NAME}sitefinitysql
     environment:
       - SA_PASSWORD=Sitefinity14@2022
       - ACCEPT_EULA=Y      
@@ -20,4 +20,4 @@ services:
       - ./data/app_data:C:/inetpub/wwwroot/App_Data 
     build:
       args:
-          - hostname=cms.sitefinity.local
+          - hostname=cms.${PROJECT_NAME}.local
