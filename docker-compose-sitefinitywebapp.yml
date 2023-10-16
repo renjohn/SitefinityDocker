@@ -16,8 +16,8 @@ services:
     image: ${PROJECT_NAME}sitefinitywebapp:14.2.7900
     container_name: ${PROJECT_NAME}sitefinitywebapp
     build:
-        context: ./src
-        dockerfile: /Sitefinity.WebApp/Dockerfile
+        context: ./src/SitefinityWebApp
+        dockerfile: SitefinityWebApp/Dockerfile
         args:
           - hostname=cms.${PROJECT_NAME}.org
     dns: 8.8.8.8
