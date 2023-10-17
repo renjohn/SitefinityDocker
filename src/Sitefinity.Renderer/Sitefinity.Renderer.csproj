@@ -2,7 +2,7 @@
   <Sdk Name="Microsoft.Build.CentralPackageVersions" Version="2.1.3" />
   
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>71addacc-8b8e-4044-bb35-151d36b77a6c</UserSecretsId>
@@ -26,10 +26,6 @@
     <PackageReference Include="Progress.Sitefinity.Renderer" />
     <PackageReference Include="Progress.Sitefinity.RestSdk" />
     <PackageReference Include="System.ComponentModel.Annotations" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Sitefinity.Infrastructure\Sitefinity.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

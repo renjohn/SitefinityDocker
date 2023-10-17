@@ -1,6 +1,6 @@
 # Sitefinity CMS Docker for Local Development
-## Current Sitefinity Version 14.2.7900 
-This repository contains a docker implementation of the Sitefinity 14 with 3 tiers: database, cms backend, and cms frontend as their own containers. The implementation code structure is based on the Clean Architecture [Clean Architecture] (https://github.com/ardalis/CleanArchitecture) template from [Steve Smith](https://ardalis.com/).  This current implementation is intended only for local development, with the plans to evolve it to a full devops solution in the future.   This repository contains example compose files and associated configuration that we use internally at [Allegiance Group](https://www.teamallegiance.com).
+## Current Sitefinity Version 14.4.8132 
+This repository contains a docker implementation of the Sitefinity 14 with 3 tiers: database, cms backend, and cms frontend as their own containers.  This current implementation is intended only for local development, with the plans to evolve it to a full devops solution in the future.   This repository contains example compose files and associated configuration that we use internally at [Allegiance Group](https://www.teamallegiance.com).
 
 The examples contained in this repo were designed to allow us to quickly get up and running on a Sitefinity instance for local development purposes on a Windows 10 machine.  The database container is running on a Linux container.  The SitefinityWebApp is running on a WindowsServerCore container, and the Renderer container is running on a Windows Nano container.  This is a blank instance running on the base Progress.Sitefinity packages need to run each solution.  If you need additional Sitefintity modules, you will need to add them via nuget prior to building the containers.
 
@@ -8,7 +8,6 @@ The implementation now also includes the setup of running ElasticSearch as the s
 
 Some features:
 - Container build for the Sitefinity 14 CMS backend that can be ported to older Sitefinity projects
-- Clean architecture based on best practices from Microsoft
 - Containers for Elastic Search
 - Options to use Visual Studio to build and publish the backend to the docker instance for faster development
 - Persistent app_data folder to store logs and the sitefinity license
@@ -23,7 +22,8 @@ Hardware Requirements:
 * 16GB RAM
 
 Software Requirements:
-* Docker Desktop 4.x - Running on experimental mode to allow both Linux and Windows VMs to run side by side.  The Windows VM is required for the Sitefinity CMS backend.  
+* Docker Desktop 4.18 - Running on experimental mode to allow both Linux and Windows Containers to run side by side.  The Windows Container is required for the Sitefinity CMS backend.  
+  * MUST BE DOCKER DESKTOP VERSION 4.18 to run Windows and Linux containers side by side
   * Switch to Windows containers in Docker for Windows tray
   * Go to Docker Engine settings section and set experimental parameter to ‘true’
   * Add a json setting for DNS to allow internet access to windows containers - "dns": [ "8.8.8.8"]
@@ -44,15 +44,8 @@ Software Requirements:
     * backup - A directory to put backup files to be restored to your instance
     * data - Your Sitefinity databases will be persisted here
 * src - This folder contains all the projects used to develop and run the application
-  * Sitefinity.Core - The core project that will contain the core application logic
-  * Sitefinity.Infrastructure - The infrastructure project will contain dependecies to external systems
-  * Sitefinity.ShareKernel - The shared kernel project will contain shared objects that need to be used throughut the application
   * Renderer - Location of the Sitefinty Frontend solution.  This is where you will run the main docker topology from
   * SitefinityWebApp - Location of the Sitefinity Backend solution.  This is where you can make any customizations for the backend of the product
-* tests - This folder contains all the test projects
-  * Sitefinity.FunctionalTests - Contains functional tests to test the application
-  * Sitefinity.IntegrationTests - Contains integrations tests for the application and infrastructure
-  * Sitefinity.UnitTests - Contains unit tests for the application
 
 ## Getting Started
 
@@ -80,7 +73,8 @@ The first time you spin up your container you will need to enter values for your
     * The license file will be provided by the Tech Lead
 2. Database Settings
     * MS SQL Server
-    * Server:  sitefinitysql
+    * Server:  ${PROJECT_NAME}sitefinitysql
+      * Replace ${PROJECT_NAME} with the PROJECT_NAME specified in the .env file
     * Port: 1433
     * Password:  See docker-compose-override.yml file in root of solution
     * Database Name: sitefinity
@@ -89,14 +83,17 @@ The first time you spin up your container you will need to enter values for your
 ### Local Elastic Search Development
 
 The Docker container for Elastic Search is configured in the docker compose file.  The elasticsetup container will setup the certificates for elastic search.  You will lso need to switch the search index within the Sitefinity Backend to use Elastic Search with the following settings:
-  * Elastic Server: es01:9200
+  * Elastic Server: ${PROJECT_NAME}es01:9200
+    * Replace ${PROJECT_NAME} with the PROJECT_NAME specified in the .env file
   * Elastic User: elastic
   * Elastic Password: See .env file in root of Solution
 
 ## Upgrade Procedures
 
 1. Upgrade the Sitefinity Web App solution using the Sitefinity CLI
-    * ex:   sf upgrade "c:\SitefinityDocker\src\SitefinityWebApp\SitefinityWebApp.sln" "14.2.7900" --acceptLicense
+    * ex:   sf upgrade "c:\SitefinityDocker\src\SitefinityWebApp\SitefinityWebApp.sln" "14.4.8132" --acceptLicense --skipPrompts
+    * NOTE:  Must use absolute path.  
+    * Upgrade is expecting SitefinityWebApp.sln to be in parent directory of SitefinityWebApp.csproj
 2. Use the nuget package manager to update the Renderer solution to match
 3. Update the version numbers in the docker compose files in both the SitefinityWebApp and Renderer folders
 4. Re-run `.\buildsitefinitybackend.ps1` from the root directory to rebuild the SitefinityWebApp container
@@ -107,16 +104,25 @@ Memory Settings are set in the Renderer docker-compose.yml or .env file as mem_l
 
 ## Trouble Shooting
 
-- Ensure you are running Docker Desktop in Windows Container mode
-- Ensure you have experimental set to true in the Docker Desktop Settings
-- If you get container failed to start or stop - run 'docker compose down' in the solution directory.  You may need to do it more than once.
-- If you get errors regarding symlinks and can't start Docker Desktop, you may need to clear out your docker data directory using https://github.com/moby/docker-ci-zap
+> Ensure you are running Docker Desktop in Windows Container mode
 
-Error that you may run into when running `.\buildsitefinitybackend.ps1`
-Status: hcsshim::PrepareLayer - failed failed in Win32: Incorrect function. (0x1), Code: 1
+> Ensure you have experimental set to true in the Docker Desktop Settings
 
-This may occur because of another background application that does file sharing. These include Dropbox, One Drive, and others. In some cases Adobe Creative Cloud and Cisco applications may be colliding.
-The recommended steps are to first uninstall any of these applications. If you can not uninstall one, use the task manager to bring up the Start Up applications. Disable any file sharing processes and reboot.
+> If you get container failed to start or stop - run 'docker compose down' in the root directory.  You may need to do it more than once.
 
-Some articles will say to delete or rename the file(s) cbfsconnect2017.sys or cbfs6.sys but the above step seems to be more reliable.
+> If you get errors regarding symlinks and can't start Docker Desktop, you may need to clear out your docker data directory using https://github.com/moby/docker-ci-zap
+
+> Error that you may run into when running `.\buildsitefinitybackend.ps1`
+>> Status: hcsshim::PrepareLayer - failed failed in Win32: Incorrect function. (0x1), Code: 1
+
+>> This may occur because of another background application that does file sharing. These include Dropbox, One Drive, and others. In some cases Adobe Creative Cloud and Cisco applications may be colliding.
+>> The recommended steps are to first uninstall any of these applications. If you can not uninstall one, use the task manager to bring up the Start Up applications. Disable any file sharing processes and reboot.
+
+>> Some articles will say to delete or rename the file(s) cbfsconnect2017.sys or cbfs6.sys but the above step seems to be more reliable.
  
+> If in development you encounter the browser error Your Connection is not private - "NET::ERR_CERT_DATE_INVALID" run the following powershell commands:
+> 1. dotnet dev-certs https --clean
+> 2. dotnet dev-certs https -ep $env:USERPROFILE\\.aspnet\https\aapm.renderer.pfx -p password
+> 3. dotnet dev-certs https --trust
+
+> Then close and reopen visual studio. You should be prompted to install and trust a new certificate when you debug next time.
