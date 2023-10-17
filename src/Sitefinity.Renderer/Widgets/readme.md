@@ -1,0 +1,1 @@
+This is where all the widgets are recommended to be placed.
